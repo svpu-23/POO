@@ -23,7 +23,7 @@ def create_schema(query):
 
 
 #for query in tables:
-#    create_schema(query)
+#create_schema(query)
 
 
 
@@ -78,3 +78,65 @@ def create_schema():
             "disponibilidad BOOLEAN"
         )
     ]
+
+
+
+
+def create_usuario (
+    nombre,
+    rut,
+    correo                      
+):
+    sql =(
+        "INSERT INTO USUARIO(nombre,rut,correo)"
+        "VALUES (:nombre,:rut,:correo)"
+    )
+
+    parametros = {
+        "nombre": nombre,
+        "rut": rut,
+        "correo": correo,
+    }
+
+def create_estudiante (
+    id_estudiante,
+    nombre,
+    rut,
+    correo                      
+):
+    pass
+
+def create_docente (
+    id_docente,
+    nombre,
+    rut,
+    correo                      
+):
+    pass
+
+def create_investigador (
+    id_investigador,
+    nombre,
+    rut,
+    correo                      
+):
+    pass
+
+def create_prestamo (
+    id_prestamo,
+    fecha_inicio,
+    fecha_fin,
+    estado,
+    
+):
+    pass
+
+def create_libro (
+    id_libro,
+    titulo,
+    autor,
+    categoria,
+    disponibilidad
+
+):
+    pass
