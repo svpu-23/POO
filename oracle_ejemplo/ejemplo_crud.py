@@ -22,14 +22,7 @@ def create_schema(query):
         print(f"No se pudo crear la tabla: {error}")            
 
 
-#for query in tables:
-#create_schema(query)
-
-
-
-def create_schema():
-
-    tables = [
+tables = [
         (
             "CREATE TABLE usuario ("
             "nombre VARCHAR(45),"
@@ -61,7 +54,7 @@ def create_schema():
             "nombre varchar(45),"
             "rut varchar(10),"
             "correo varchar(30),"
-            ")"
+            ");"
         )
         (
             "CREATE TABLE libro ("
@@ -86,15 +79,15 @@ def create_schema():
         )
     ]
 
+for query in tables:
+    create_schema(query)
 
-
-
-def create_usuario (
+def create_usuario(
     nombre,
     rut,
     correo                      
 ):
-    sql =(
+    sql = (
         "INSERT INTO USUARIO(nombre,rut,correo)"
         "VALUES (:nombre,:rut,:correo)"
     )
@@ -104,6 +97,15 @@ def create_usuario (
         "rut": rut,
         "correo": correo,
     }
+
+try: 
+    with get_connection() as connection: 
+        with connection.cursor() as cursor:
+            cursor.execute(sql, parametros)
+        connection.commit()
+        print("Insercion de datos correcta")
+except oracledb.DatabaseError as error:
+    print(f"No se pudo insertar el dato \n {error}\n {sql} \n {parametros}")
 
 def create_estudiante (
     id_estudiante,
@@ -123,6 +125,8 @@ def create_estudiante (
         "correo": correo,
     }
 
+
+
 def create_docente (
     id_docente,
     nombre,
@@ -141,6 +145,8 @@ def create_docente (
         "correo": correo,
     }
 
+
+
 def create_investigador (
     id_investigador,
     nombre,
@@ -158,6 +164,8 @@ def create_investigador (
         "rut": rut,
         "correo": correo,
     }
+
+
 
 def create_libro (
     id_libro,
@@ -187,12 +195,13 @@ def create_prestamo (
     estado,
     rut_usuario,
     id_libro
-    
 ):
+    
+    
     sql =(
         "INSERT INTO PRESTAMO(id_prestamo,fecha_inicio,fecha_fin,estado,rut_usuario,id_libro)"
         "VALUES (:id_prestamo,:fecha_inicio,:fecha_fin,:estado,:rut_usuario,:id_libro)"
-    )
+)
 
     parametros = {
         "id_prestamo":id_prestamo,
@@ -204,3 +213,134 @@ def create_prestamo (
     }
 
 
+
+def read_usuario():
+    sql =(
+        "SELECT * FROM USUARIO"
+    )
+    try: 
+        with get_connection() as connection: 
+            with connection.cursor() as cursor:
+                print(sql)
+                resultados = cursor.execute(sql)
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as error:
+        print(f"No se pudo ejecutar la query {error}\n {sql}")
+
+
+def read_usuario_by_id(id: int):
+    sql =(
+        "SELECT * FROM USUARIO"
+    )
+    parametros = {"id" : id}
+    try: 
+        with get_connection() as connection: 
+            with connection.cursor() as cursor:
+                print(sql)
+                resultados = cursor.execute(sql)
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as error:
+        print(f"No se pudo insertar el dato \n {error}\n {sql} \n {parametros}")
+
+
+def read_estudiante():
+    pass
+
+
+def read_estudiante_by_id(id: int):
+    sql =(
+        "SELECT * FROM USUARIO"
+    )
+    parametros = {"id" : id}
+    try: 
+        with get_connection() as connection: 
+            with connection.cursor() as cursor:
+                print(sql)
+                resultados = cursor.execute(sql)
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as error:
+        print(f"No se pudo insertar el dato \n {error}\n {sql} \n {parametros}")
+
+
+def read_docente():
+    pass
+
+
+def read_docente_by_id(id: int):
+    sql =(
+        "SELECT * FROM DOCENTE WHERE id = :id"
+    )
+    parametros = {"id" : id}
+    try: 
+        with get_connection() as connection: 
+            with connection.cursor() as cursor:
+                print(sql, parametros)
+                resultados = cursor.execute(sql, parametros)
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as error:
+        print(f"No se pudo insertar el dato \n {error}\n {sql} \n {parametros}")
+
+
+
+def read_investigador():
+    pass
+
+
+def read_investigador_by_id(id: int):
+    sql =(
+        "SELECT * FROM USUARIO"
+    )
+    parametros = {"id" : id}
+    try: 
+        with get_connection() as connection: 
+            with connection.cursor() as cursor:
+                print(sql)
+                resultados = cursor.execute(sql)
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as error:
+        print(f"No se pudo insertar el dato \n {error}\n {sql} \n {parametros}")
+
+
+def read_libro():
+    pass
+
+
+def read_libro_by_id(id: int):
+    sql =(
+        "SELECT * FROM USUARIO"
+    )
+    parametros = {"id" : id}
+    try: 
+        with get_connection() as connection: 
+            with connection.cursor() as cursor:
+                print(sql)
+                resultados = cursor.execute(sql)
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as error:
+        print(f"No se pudo insertar el dato \n {error}\n {sql} \n {parametros}")
+
+
+def read_prestamo():
+    pass
+
+
+def read_prestamo_by_id(id: int):
+    sql =(
+        "SELECT * FROM USUARIO"
+    )
+    parametros = {"id" : id}
+    try: 
+        with get_connection() as connection: 
+            with connection.cursor() as cursor:
+                print(sql)
+                resultados = cursor.execute(sql)
+                for fila in resultados:
+                    print(fila)
+    except oracledb.DatabaseError as error:
+        print(f"No se pudo insertar el dato \n {error}\n {sql} \n {parametros}")
