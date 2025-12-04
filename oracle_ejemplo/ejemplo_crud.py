@@ -23,63 +23,66 @@ def create_schema(query):
     except oracledb.DatabaseError as error:
         print(f"No se pudo crear la tabla: {error}")            
 
+
+
+
 def create_all_tables():
     tables = [
-            (
-                "CREATE TABLE usuario ("
-                "nombre VARCHAR(45),"
-                "rut VARCHAR(10) PRIMARY KEY,"
-                "correo VARCHAR(30)"
-                ");"
-            )
-            (
-                "CREATE TABLE estudiante ("
-                "id_estudiante INTEGER PRIMARY KEY,"
-                "nombre VARCHAR(45),"
-                "rut VARCHAR(10),"
-                "correo VARCHAR(30),"
-                "FOREIGN KEY (rut) REFERENCES usuario(rut)"
-                ");"
-            )
-            (
-                "CREATE TABLE docente ("
-                "id_docente INTEGER PRIMARY KEY,"
-                "nombre VARCHAR(45),"
-                "rut VARCHAR(10),"
-                "correo VARCHAR(30),"
-                "FOREIGN KEY (rut) REFERENCES usuario(rut)"
-                ");" 
-            )
-            (
-                "CREATE TABLE investigador ("
-                "id_investigador INTEGER PRIMARY KEY,"
-                "nombre varchar(45),"
-                "rut varchar(10),"
-                "correo varchar(30),"
-                ");"
-            )
-            (
-                "CREATE TABLE libro ("
-                "id_libro INTEGER PRIMARY KEY,"
-                "titulo VARCHAR(50),"
-                "autor VARCHAR(20),"
-                "categoria VARCHAR(35),"
-                "disponibilidad BOOLEAN"
-                ");"
-            )
-            (
-                "CREATE TABLE prestamo ("
-                "id_prestamo INTEGER PRIMARY KEY,"
-                "fecha_inicio DATE,"
-                "fecha_fin DATE,"
-                "estado VARCHAR(20),"
-                "rut_usuario VARCHAR(10),"
-                "id_libro INTEGER,"
-                "FOREIGN KEY (rut_usuario) REFERENCES usuario(rut),"
-                "FOREIGN KEY (id_libro) REFERENCES libro(id_libro)"
-                ");"
-            )
-        ]
+        (
+            "CREATE TABLE usuario ("
+            "nombre VARCHAR(45),"
+            "rut VARCHAR(10) PRIMARY KEY,"
+            "correo VARCHAR(30)"
+            ");"
+        )
+        (
+            "CREATE TABLE estudiante ("
+            "id_estudiante INTEGER PRIMARY KEY,"
+            "nombre VARCHAR(45),"
+            "rut VARCHAR(10),"
+            "correo VARCHAR(30),"
+            "FOREIGN KEY (rut) REFERENCES usuario(rut)"
+            ");"
+        )
+        (
+            "CREATE TABLE docente ("
+            "id_docente INTEGER PRIMARY KEY,"
+            "nombre VARCHAR(45),"
+            "rut VARCHAR(10),"
+            "correo VARCHAR(30),"
+            "FOREIGN KEY (rut) REFERENCES usuario(rut)"
+            ");" 
+        )
+        (
+            "CREATE TABLE investigador ("
+            "id_investigador INTEGER PRIMARY KEY,"
+            "nombre varchar(45),"
+            "rut varchar(10),"
+            "correo varchar(30),"
+            ");"
+        )
+        (
+            "CREATE TABLE libro ("
+            "id_libro INTEGER PRIMARY KEY,"
+            "titulo VARCHAR(50),"
+            "autor VARCHAR(20),"
+            "categoria VARCHAR(35),"
+            "disponibilidad BOOLEAN"
+            ");"
+        )
+        (
+            "CREATE TABLE prestamo ("
+            "id_prestamo INTEGER PRIMARY KEY,"
+            "fecha_inicio DATE,"
+            "fecha_fin DATE,"
+            "estado VARCHAR(20),"
+            "rut_usuario VARCHAR(10),"
+            "id_libro INTEGER,"
+            "FOREIGN KEY (rut_usuario) REFERENCES usuario(rut),"
+            "FOREIGN KEY (id_libro) REFERENCES libro(id_libro)"
+            ");"
+        )
+    ]
 
     for query in tables:
         create_schema(query)
@@ -812,6 +815,253 @@ def menu_usuario():
             print("Opción incorrecta, intente nuevamente.")
             input("Ingrese ENTER para continuar...")
 
+def menu_estudiante():
+    while True:
+        os.system("cls")
+        print(
+            """
+                ====================================
+                |       Menu: Estudiantes          |
+                |----------------------------------|
+                | 1. Insertar Estudiante           |
+                | 2. Consultar Estudiantes         |
+                | 3. Consultar Estudiante por ID   |
+                | 4. Modificar Estudiante          |
+                | 5. Eliminar Estudiante           |
+                | 0. Volver al menu principal      |
+                ====================================
+            """
+        )
+        opcion = input("Elige una opción [1-5, 0]: ")
+
+        if opcion == "1":
+            os.system("cls")
+            print("1. Insertar Estudiante")
+            id = input("ID Estudiante: ")
+            nombre = input("Nombre: ")
+            rut = input("RUT (debe existir primero en Usuario): ")
+            correo = input("Correo: ")
+            create_estudiante(id, nombre, rut, correo)
+            input("ENTER para continuar...")
+
+        elif opcion == "2":
+            os.system("cls")
+            print("2. Consultar Estudiantes")
+            read_estudiante()
+            input("ENTER...")
+
+        elif opcion == "3":
+            os.system("cls")
+            id = input("ID Estudiante: ")
+            read_estudiante_by_id(id)
+            input("ENTER...")
+
+        elif opcion == "4":
+            os.system("cls")
+            id = input("ID a modificar: ")
+            print("[Deje vacío para no modificar]")
+            nombre = input("Nuevo nombre: ")
+            rut = input("Nuevo rut: ")
+            correo = input("Nuevo correo: ")
+
+            if nombre.strip()== "": nombre=None
+            if rut.strip()== "": rut=None
+            if correo.strip()== "": correo=None
+
+            update_estudiante(id, nombre, rut, correo)
+            input("ENTER...")
+
+        elif opcion == "5":
+            os.system("cls")
+            id = input("ID a eliminar: ")
+            delete_estudiante(id)
+            input("ENTER...")
+
+        elif opcion == "0":
+            break
+
+        else:
+            print("Opción incorrecta")
+            input("ENTER...")
+
+def menu_docente():
+    while True:
+        os.system("cls")
+        print(
+            """
+                ====================================
+                |          Menu: Docentes          |
+                |----------------------------------|
+                | 1. Insertar Docente              |
+                | 2. Consultar Docentes            |
+                | 3. Consultar Docente por ID      |
+                | 4. Modificar Docente             |
+                | 5. Eliminar Docente              |
+                | 0. Volver al menu principal      |
+                ====================================
+            """
+        )
+        opcion = input("Elige opción: ")
+
+        if opcion=="1":
+            id=input("ID Docente: ")
+            nombre=input("Nombre: ")
+            rut=input("RUT usuario: ")
+            correo=input("Correo: ")
+            create_docente(id,nombre,rut,correo)
+            input("ENTER...")
+
+        elif opcion=="2": read_docente(); input("ENTER...")
+        elif opcion=="3": read_docente_by_id(input("ID: ")); input("ENTER...")
+
+        elif opcion=="4":
+            id=input("ID a modificar: ")
+            nombre=input("Nuevo nombre: ") or None
+            rut=input("Nuevo rut: ") or None
+            correo=input("Nuevo correo: ") or None
+            update_docente(id,nombre,rut,correo)
+            input("ENTER...")
+
+        elif opcion=="5": delete_docente(input("ID: ")); input("ENTER...")
+        elif opcion=="0": break
+        else: input("Opción incorrecta...")
+
+def menu_investigador():
+    while True:
+        os.system("cls")
+        print(
+            """
+                ====================================
+                |       Menu: Investigadores       |
+                |----------------------------------|
+                | 1. Insertar Investigador         |
+                | 2. Consultar Investigadores      |
+                | 3. Consultar Investigador por ID |
+                | 4. Modificar Investigador        |
+                | 5. Eliminar Investigador         |
+                | 0. Volver al menu principal      |
+                ====================================
+            """
+        )
+        opcion=input("Opción: ")
+
+        if opcion=="1":
+            id=input("ID: ")
+            nombre=input("Nombre: ")
+            rut=input("RUT usuario: ")
+            correo=input("Correo: ")
+            create_investigador(id,nombre,rut,correo)
+            input("ENTER...")
+
+        elif opcion=="2": read_investigador(); input("ENTER...")
+        elif opcion=="3": read_investigador_by_id(input("ID: ")); input("ENTER...")
+
+        elif opcion=="4":
+            id=input("ID modificar: ")
+            nombre=input("Nombre: ") or None
+            rut=input("RUT: ") or None
+            correo=input("Correo: ") or None
+            update_investigador(id,nombre,rut,correo)
+            input("ENTER...")
+
+        elif opcion=="5": delete_investigador(input("ID: ")); input("ENTER...")
+        elif opcion=="0": break
+
+def menu_libro():
+    while True:
+        os.system("cls")
+        print(
+            """
+                ====================================
+                |           Menu: Libros           |
+                |----------------------------------|
+                | 1. Insertar Libro                |
+                | 2. Consultar Libros              |
+                | 3. Consultar Libro por ID        |
+                | 4. Modificar Libro               |
+                | 5. Eliminar Libro                |
+                | 0. Volver al menu principal      |
+                ====================================
+            """
+        )
+        opcion=input("Opción: ")
+
+        if opcion=="1":
+            id=input("ID libro: ")
+            titulo=input("Título: ")
+            autor=input("Autor: ")
+            categoria=input("Categoría: ")
+            disponibilidad=input("Disponible (1/0): ")
+            create_libro(id,titulo,autor,categoria,disponibilidad)
+            input("ENTER...")
+
+        elif opcion=="2": read_libro(); input("ENTER...")
+        elif opcion=="3": read_libro_by_id(input("ID libro: ")); input("ENTER...")
+
+        elif opcion=="4":
+            id=input("ID libro: ")
+            titulo=input("Nuevo título: ") or None
+            autor=input("Nuevo autor: ") or None
+            categoria=input("Nueva categoría: ") or None
+            disponibilidad=input("Disponible(1/0): ") or None
+            update_libro(id,titulo,autor,categoria,disponibilidad)
+            input("ENTER...")
+
+        elif opcion=="5": delete_libro(input("ID libro: ")); input("ENTER...")
+        elif opcion=="0": break
+def menu_prestamo():
+    while True:
+        os.system("cls")
+        print(
+            """
+                ====================================
+                |         Menu: Prestamos          |
+                |----------------------------------|
+                | 1. Registrar Prestamo            |
+                | 2. Consultar Prestamos           |
+                | 3. Consultar Prestamo por ID     |
+                | 4. Modificar Prestamo            |
+                | 5. Eliminar Prestamo             |
+                | 0. Volver al menu principal      |
+                ====================================
+            """
+        )
+        opcion=input("Opción: ")
+
+        if opcion=="1":
+            id=input("ID prestamo: ")
+            fi=input("Fecha inicio: ")
+            ff=input("Fecha fin: ")
+            estado=input("Estado: ")
+
+            print("\nUsuarios disponibles:")
+            read_usuario()
+            rut=input("RUT usuario: ")
+
+            print("\nLibros disponibles:")
+            read_libro()
+            id_l=input("ID libro: ")
+
+            create_prestamo(id,fi,ff,estado,rut,id_l)
+            input("ENTER...")
+
+        elif opcion=="2": read_prestamo(); input("ENTER...")
+        elif opcion=="3": read_prestamo_by_id(input("ID prestamo: ")); input("ENTER...")
+
+        elif opcion=="4":
+            id=input("ID modificar: ")
+            fi=input("Fecha inicio: ") or None
+            ff=input("Fecha fin: ") or None
+            estado=input("Estado: ") or None
+            rut=input("Nuevo rut usuario: ") or None
+            id_l=input("Nuevo id libro: ") or None
+
+            update_prestamo(id,fi,ff,estado,rut,id_l)
+            input("ENTER...")
+
+        elif opcion=="5": delete_prestamo(input("ID: ")); input("ENTER...")
+        elif opcion=="0": break
+
 def main():
     while True:
         os.system("cls")
@@ -841,15 +1091,15 @@ def main():
         elif opcion == "2":
             menu_usuario()
         elif opcion == "3":
-            pass  
+            menu_estudiante()
         elif opcion == "4":
-            pass  
+            menu_docente()  
         elif opcion == "5":
-            pass  
+            menu_investigador()  
         elif opcion == "6":
-            pass  
+            menu_libro()  
         elif opcion == "7":
-            pass  
+            menu_prestamo()  
 
         elif opcion == "0":
             os.system("cls")
@@ -864,5 +1114,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
