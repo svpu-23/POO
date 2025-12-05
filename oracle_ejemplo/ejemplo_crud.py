@@ -30,62 +30,64 @@ def create_all_tables():
     tables = [
         (
             "CREATE TABLE usuario ("
-            "nombre VARCHAR(45),"
-            "rut VARCHAR(10) PRIMARY KEY,"
-            "correo VARCHAR(30)"
-            ");"
-        )
+            "nombre VARCHAR2(45),"
+            "rut VARCHAR2(10) PRIMARY KEY,"
+            "correo VARCHAR2(30)"
+            ")"
+        ),
         (
             "CREATE TABLE estudiante ("
             "id_estudiante INTEGER PRIMARY KEY,"
-            "nombre VARCHAR(45),"
-            "rut VARCHAR(10),"
-            "correo VARCHAR(30),"
+            "nombre VARCHAR2(45),"
+            "rut VARCHAR2(10),"
+            "correo VARCHAR2(30),"
             "FOREIGN KEY (rut) REFERENCES usuario(rut)"
-            ");"
-        )
+            ")"
+        ),
         (
             "CREATE TABLE docente ("
             "id_docente INTEGER PRIMARY KEY,"
-            "nombre VARCHAR(45),"
-            "rut VARCHAR(10),"
-            "correo VARCHAR(30),"
+            "nombre VARCHAR2(45),"
+            "rut VARCHAR2(10),"
+            "correo VARCHAR2(30),"
             "FOREIGN KEY (rut) REFERENCES usuario(rut)"
-            ");" 
-        )
+            ")"
+        ),
         (
             "CREATE TABLE investigador ("
             "id_investigador INTEGER PRIMARY KEY,"
-            "nombre varchar(45),"
-            "rut varchar(10),"
-            "correo varchar(30),"
-            ");"
-        )
+            "nombre VARCHAR2(45),"
+            "rut VARCHAR2(10),"
+            "correo VARCHAR2(30)"
+            ")"   
+        ),
         (
             "CREATE TABLE libro ("
             "id_libro INTEGER PRIMARY KEY,"
-            "titulo VARCHAR(50),"
-            "autor VARCHAR(20),"
-            "categoria VARCHAR(35),"
-            "disponibilidad BOOLEAN"
-            ");"
-        )
+            "titulo VARCHAR2(50),"
+            "autor VARCHAR2(20),"
+            "categoria VARCHAR2(35),"
+            "disponibilidad NUMBER(1)"  
+            ")"
+        ),
         (
             "CREATE TABLE prestamo ("
             "id_prestamo INTEGER PRIMARY KEY,"
             "fecha_inicio DATE,"
             "fecha_fin DATE,"
-            "estado VARCHAR(20),"
-            "rut_usuario VARCHAR(10),"
+            "estado VARCHAR2(20),"
+            "rut_usuario VARCHAR2(10),"
             "id_libro INTEGER,"
             "FOREIGN KEY (rut_usuario) REFERENCES usuario(rut),"
             "FOREIGN KEY (id_libro) REFERENCES libro(id_libro)"
-            ");"
-        )
+            ")"
+        ),
     ]
 
     for query in tables:
         create_schema(query)
+
+
 
 
 def create_usuario(
@@ -241,8 +243,8 @@ def create_prestamo (
 
     parametros = {
         "id_prestamo":id_prestamo,
-        "fecha_inicio": datetime.striptime(fecha_inicio, "%d-%m-%Y"),
-        "fecha_fin": datetime.striptime(fecha_fin, "%d-%m-%Y"),
+        "fecha_inicio": datetime.strptime(fecha_inicio, "%d-%m-%Y"),
+        "fecha_fin": datetime.strptime(fecha_fin, "%d-%m-%Y"),
         "estado": estado,
         "rut_usuario": rut_usuario,
         "id_libro": id_libro
@@ -272,11 +274,11 @@ def read_usuario():
     except oracledb.DatabaseError as error:
         print(f"No se pudo ejecutar la query {error}\n {sql}")
 
-def read_usuario_by_id(id: int):
+def read_usuario_by_id(rut: str):
     sql =(
-        "SELECT * FROM USUARIO WHERE id = :id"
+        "SELECT * FROM USUARIO WHERE rut = :rut"
     )
-    parametros = {"id" : id}
+    parametros = {"rut" : rut}
     try: 
         with get_connection() as connection: 
             with connection.cursor() as cursor:
@@ -303,7 +305,7 @@ def read_estudiante():
 
 def read_estudiante_by_id(id: int):
     sql =(
-        "SELECT * FROM ESTUDIANTE WHERE id = :id"
+        "SELECT * FROM ESTUDIANTE WHERE id_estudiante = :id"
     )
     parametros = {"id" : id}
     try: 
@@ -332,7 +334,7 @@ def read_docente():
 
 def read_docente_by_id(id: int):
     sql =(
-        "SELECT * FROM DOCENTE WHERE id = :id"
+        "SELECT * FROM DOCENTE WHERE id_docente = :id"
     )
     parametros = {"id" : id}
     try: 
@@ -361,7 +363,7 @@ def read_investigador():
 
 def read_investigador_by_id(id: int):
     sql =(
-        "SELECT * FROM INVESTIGADOR WHERE id = :id"
+        "SELECT * FROM INVESTIGADOR WHERE id_investigador = :id"
     )
     parametros = {"id" : id}
     try: 
@@ -390,7 +392,7 @@ def read_libro():
 
 def read_libro_by_id(id: int):
     sql =(
-        "SELECT * FROM LIBRO WHERE id = :id"
+        "SELECT * FROM LIBRO WHERE id_libro = :id"
     )
     parametros = {"id" : id}
     try: 
@@ -419,7 +421,7 @@ def read_prestamo():
 
 def read_prestamo_by_id(id: int):
     sql =(
-        "SELECT * FROM PRESTAMO WHERE id = :id"
+        "SELECT * FROM PRESTAMO WHERE id_prestamo = :id"
     )
     parametros = {"id" : id}
     try: 
@@ -454,7 +456,7 @@ def update_usuario(
     if not modificaciones:
         return print("no has enviado datos por modificar")
 
-    sql = f"UPDATE ESTUDIANTE SET { ", ".join(modificaciones) } WHERE rut =: rut"
+    sql = f"UPDATE USUARIO SET {', '.join(modificaciones)} WHERE rut = :rut"
 
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -463,14 +465,14 @@ def update_usuario(
         print(f"Dato con RUT={rut} actualizado.")
 
 def update_estudiante(
-    id: int,
+    id_estudiante: int,
     nombre: Optional[str] = None,
     rut: Optional[str] = None,
     correo: Optional[str] = None
 
 ):
     modificaciones = []
-    parametros = {"id": id}
+    parametros = {"id_estudiante": id_estudiante}
 
     if rut is not None:
         modificaciones.append("rut =: rut")
@@ -486,23 +488,23 @@ def update_estudiante(
     if not modificaciones:
         return print("no has enviado datos por modificar")
 
-    sql = f"UPDATE ESTUDIANTE SET { ", ".join(modificaciones) } WHERE id =: id"
+    sql = f"UPDATE ESTUDIANTE SET {', '.join(modificaciones)} WHERE id_estudiante = :id_estudiante"
 
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, parametros)
         conn.commit()
-        print(f"Dato con ID={id} actualizado.")
+        print(f"Dato con ID={id_estudiante} actualizado.")
 
 def update_docente(
-    id: int,
+    id_docente: int,
     nombre: Optional[str] = None,
     rut: Optional[str] = None,
     correo: Optional[str] = None
 
 ):
     modificaciones = []
-    parametros = {"id": id}
+    parametros = {"id_docente": id_docente}
 
     if rut is not None:
         modificaciones.append("rut =: rut")
@@ -518,23 +520,23 @@ def update_docente(
     if not modificaciones:
         return print("no has enviado datos por modificar")
 
-    sql = f"UPDATE DOCENTE SET { ", ".join(modificaciones) } WHERE id =: id"
+    sql = f"UPDATE DOCENTE SET {', '.join(modificaciones)} WHERE id_docente = :id_docente"
 
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, parametros)
         conn.commit()
-        print(f"Dato con ID={id} actualizado.")
+        print(f"Dato con ID={id_docente} actualizado.")
 
 def update_investigador(
-    id: int,
+    id_investigador: int,
     nombre: Optional[str] = None,
     rut: Optional[str] = None,
     correo: Optional[str] = None
 
 ):
     modificaciones = []
-    parametros = {"id": id}
+    parametros = {"id_investigador": id_investigador}
 
     if rut is not None:
         modificaciones.append("rut =: rut")
@@ -550,16 +552,16 @@ def update_investigador(
     if not modificaciones:
         return print("no has enviado datos por modificar")
 
-    sql = f"UPDATE INVESTIGADOR SET { ", ".join(modificaciones) } WHERE id =: id"
+    sql = f"UPDATE INVESTIGADOR SET {', '.join(modificaciones)} WHERE id_investigador = :id_investigador"
 
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, parametros)
         conn.commit()
-        print(f"Dato con ID={id} actualizado.")
+        print(f"Dato con ID={id_investigador} actualizado.")
 
 def update_libro(
-    id: int,
+    id_libro: int,
     titulo: Optional[str] = None,
     autor: Optional[str] = None,
     categoria: Optional[str] = None,
@@ -567,7 +569,7 @@ def update_libro(
 
 ):
     modificaciones = []
-    parametros = {"id": id}
+    parametros = {"id_libro": id_libro}
 
     if titulo is not None:
         modificaciones.append("titulo =: titulo")
@@ -590,16 +592,16 @@ def update_libro(
     
     
 
-    sql = f"UPDATE libro SET { ", ".join(modificaciones) } WHERE id =: id"
+    sql = f"UPDATE LIBRO SET {', '.join(modificaciones)} WHERE id_libro = :id_libro"
 
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, parametros)
         conn.commit()
-        print(f"Dato con ID={id} actualizado.")
+        print(f"Dato con ID={id_libro} actualizado.")
 
 def update_prestamo(
-    id: int,
+    id_prestamo: int,
     fecha_inicio: Optional[str] = None,
     fecha_fin: Optional[str] = None,
     estado: Optional[str] = None,
@@ -608,7 +610,7 @@ def update_prestamo(
 
 ):
     modificaciones = []
-    parametros = {"id": id}
+    parametros = {"id_prestamo": id_prestamo}
 
     if fecha_inicio is not None:
         modificaciones.append("fecha_inicio =: fecha_inicio")
@@ -633,22 +635,22 @@ def update_prestamo(
     if not modificaciones:
         return print("no has enviado datos por modificar")
     
-    
 
-    sql = f"UPDATE PRESTAMO SET { ", ".join(modificaciones) } WHERE id =: id"
+
+    sql = f"UPDATE PRESTAMO SET {', '.join(modificaciones)} WHERE id_prestamo = :id_prestamo"
 
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, parametros)
         conn.commit()
-        print(f"Dato con ID={id} actualizado.")
+        print(f"Dato con ID={id_prestamo} actualizado.")
 
 
 #eliminacion de datos 
 
 def delete_usuario(rut: str):
     sql = (
-        "DELETE FROM USUARIO WHERE rut: rut"
+        "DELETE FROM USUARIO WHERE rut = :rut"
     )
     parametros = {"rut" : rut}
 
@@ -662,11 +664,11 @@ def delete_usuario(rut: str):
         err = e
         print(f"Error al eliminar dato: {err} \n {sql} \n {parametros}")
 
-def delete_estudiante(id: int):
+def delete_estudiante(id_estudiante: int):
     sql = (
-        "DELETE FROM ESTUDIANTE WHERE id: id"
+        "DELETE FROM ESTUDIANTE WHERE id_estudiante = :id_estudiante"
     )
-    parametros = {"id" : id}
+    parametros = {"id_estudiante" : id_estudiante}
 
     try:
         with get_connection() as conn:
@@ -678,11 +680,11 @@ def delete_estudiante(id: int):
         err = e
         print(f"Error al eliminar dato: {err} \n {sql} \n {parametros}")
 
-def delete_docente(id: int):
+def delete_docente(id_docente: int):
     sql = (
-        "DELETE FROM DOCENTE WHERE id: id"
+        "DELETE FROM DOCENTE WHERE id_docente = :id_docente"
     )
-    parametros = {"id" : id}
+    parametros = {"id_docente" : id_docente}
 
     try:
         with get_connection() as conn:
@@ -694,11 +696,11 @@ def delete_docente(id: int):
         err = e
         print(f"Error al eliminar dato: {err} \n {sql} \n {parametros}")
 
-def delete_investigador(id: int):
+def delete_investigador(id_investigador: int):
     sql = (
-        "DELETE FROM INVESTIGADOR WHERE id: id"
+        "DELETE FROM INVESTIGADOR WHERE id_investigador = :id_investigador"
     )
-    parametros = {"id" : id}
+    parametros = {"id_investigador" : id_investigador}
 
     try:
         with get_connection() as conn:
@@ -710,11 +712,11 @@ def delete_investigador(id: int):
         err = e
         print(f"Error al eliminar dato: {err} \n {sql} \n {parametros}")
 
-def delete_libro(id: int):
+def delete_libro(id_libro: int):
     sql = (
-        "DELETE FROM LIBRO WHERE id: id"
+        "DELETE FROM LIBRO WHERE id_libro = :id_libro"
     )
-    parametros = {"id" : id}
+    parametros = {"id_libro" : id_libro}
 
     try:
         with get_connection() as conn:
@@ -726,11 +728,11 @@ def delete_libro(id: int):
         err = e
         print(f"Error al eliminar dato: {err} \n {sql} \n {parametros}")
 
-def delete_prestamo(id: int):
+def delete_prestamo(id_prestamo: int):
     sql = (
-        "DELETE FROM PRESTAMO WHERE id: id"
+        "DELETE FROM PRESTAMO WHERE id_prestamo = :id_prestamo"
     )
-    parametros = {"id" : id}
+    parametros = {"id_prestamo" : id_prestamo}
 
     try:
         with get_connection() as conn:

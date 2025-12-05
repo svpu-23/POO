@@ -33,7 +33,7 @@ CREATE TABLE libro (
     titulo VARCHAR(50),
     autor VARCHAR(20),
     categoria VARCHAR(35),
-    disponibilidad BOOLEAN
+    disponibilidad NUMBER(1)
 );
 
 CREATE TABLE prestamo (
