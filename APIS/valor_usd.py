@@ -17,3 +17,88 @@ try:
     print(data)
 except:
     print(respuesta)
+
+
+import requests
+
+base_url = "https://cl.dolarapi.com"
+endpoint_euro = "/v1/cotizaciones/eur"
+
+respuesta = requests.get(f"{base_url}{endpoint_euro}")
+
+try:
+    data = respuesta.json()
+    print(data)
+except:
+    print(respuesta)
+
+
+import requests
+
+base_url = "https://cl.dolarapi.com"
+endpoint_ipc = "/v1/inflacion"
+
+respuesta = requests.get(f"{base_url}{endpoint_ipc}")
+
+try:
+    data = respuesta.json()
+    print(data)
+except:
+    print(respuesta)
+
+
+import requests
+
+base_url = "https://mindicador.cl/api"
+endpoint_uf = "/uf"
+
+respuesta = requests.get(f"{base_url}{endpoint_uf}")
+
+try:
+    data = respuesta.json()
+    print(data["serie"][0])
+except:
+    print(respuesta)
+
+
+import requests
+
+base_url = "https://mindicador.cl/api"
+endpoint_ivp = "/ivp"
+
+respuesta = requests.get(f"{base_url}{endpoint_ivp}")
+
+try:
+    data = respuesta.json()
+    print(data["serie"][0])
+except:
+    print(respuesta)
+
+
+import requests
+
+base_url = "https://mindicador.cl/api"
+endpoint_ipc = "/ipc"
+
+respuesta = requests.get(f"{base_url}{endpoint_ipc}")
+
+try:
+    data = respuesta.json()
+    print(data["serie"][0])
+except:
+    print(respuesta)
+
+
+
+import requests
+
+base_url = "https://mindicador.cl/api"
+endpoint_utm = "/utm"
+
+respuesta = requests.get(f"{base_url}{endpoint_utm}")
+
+try:
+    data = respuesta.json()
+    print(data["serie"][0])
+except:
+    print(respuesta)
