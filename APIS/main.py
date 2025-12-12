@@ -2,6 +2,7 @@ import oracledb
 import os
 from dotenv import load_dotenv
 import bcrypt
+from typing import Optional
 
 load_dotenv()
 
@@ -25,7 +26,15 @@ Dólar -> CLP.
 Euro -> CLP.
 """
 
-
+class Database:
+    def __init__(self, username,password,dsn):
+        self.username = username
+        self.password = password
+        self.dsn = dsn
+    def getconnection(self):
+        return oracledb.connect(user=self.username, password=self.password, dsn=self.dsn)
+    
+    
 class Finance:
     @staticmethod
     def get_uf():
@@ -46,11 +55,5 @@ class Finance:
     def get_eur():
         pass
 
-class Database:
-    def __init__(self, username,password,dsn):
-        self.username = username
-        self.password = password
-        self.dsn = dsn
-    def getconnection(self):
-        return oracledb.connect(user=self.username, password=self.password, dsn=self.dsn)
+
     
