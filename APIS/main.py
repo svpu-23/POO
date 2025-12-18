@@ -111,6 +111,8 @@ class Finance:
     def get_utm(self, fecha: str = None):
         self.get_indicator("utm", fecha)
 
+
+
 if __name__ == "__main__":
     db = Database(
         username=os.getenv("ORACLE_USER"),
