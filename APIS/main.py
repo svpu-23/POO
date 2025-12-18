@@ -43,25 +43,74 @@ class Database:
         except oracledb.DatabaseError as error:
             print(error)
 
+
+    def create_table_consulta_indicador(self):
+        sql = """
+        CREATE TABLE CONSULTA_INDICADOR (
+            id_consulta NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            nombre_indicador VARCHAR2(20),
+            valor NUMBER(15,4),
+            fecha_indicador DATE,
+            fecha_consulta DATE,
+            usuario VARCHAR2(32),
+            fuente VARCHAR2(100)
+        )
+        """
+        self.query(sql)
+
+
+    def registrar_consulta(
+    self,
+    nombre_indicador,
+    valor,
+    fecha_indicador,
+    usuario,
+    fuente
+):
+        sql = """
+        INSERT INTO CONSULTA_INDICADOR
+        (nombre_indicador, valor, fecha_indicador, fecha_consulta, usuario, fuente)
+        VALUES
+        (:nombre_indicador, :valor, :fecha_indicador, :fecha_consulta, :usuario, :fuente)
+        """
+
+        parametros = {
+            "nombre_indicador": nombre_indicador,
+            "valor": valor,
+            "fecha_indicador": fecha_indicador,
+            "fecha_consulta": datetime.datetime.now(),
+            "usuario": usuario,
+            "fuente": fuente
+        }
+
+        self.query(sql, parametros)
+
+
+
+
 class Auth:
     @staticmethod
     def login(db: Database, username: str, password: str):
         password = password.encode("UTF-8")
 
         resultado = db.query(
-            sql= "SELECT * FROM USERS WHERE username = :username",
-            parameters={"username":username}
+            "SELECT * FROM USERS WHERE username = :username",
+            {"username": username}
         )
 
-        if len(resultado) < 0:
-            return print("No hay coincidencias")
-        
-        hashed_password = bytes.fromhex(resultado[0][2])
+        if len(resultado) == 0:
+            print("Usuario no encontrado")
+            return False
+
+        hashed_password = resultado[0][2].encode("UTF-8")
 
         if bcrypt.checkpw(password, hashed_password):
-            return print("Logeado correctamente")
+            print("Logeado correctamente")
+            return True
         else:
-            return print("Contraseña incorrecta")
+            print("Contraseña incorrecta")
+            return False
+
 
     @staticmethod
     def register(db: Database, id: int, username: str, password: str):
@@ -110,6 +159,89 @@ class Finance:
         self.get_indicator("ipc", fecha)
     def get_utm(self, fecha: str = None):
         self.get_indicator("utm", fecha)
+    
+    def consultar_y_guardar(
+    self,
+    indicator: str,
+    db,
+    usuario: str,
+    fecha: str = None
+):
+        try:
+            valor = self.get_indicator(indicator, fecha)
+
+            if valor is None:
+                return
+
+            print(f"{indicator.upper()} = {valor}")
+
+            guardar = input("¿Desea guardar la consulta? (s/n): ").lower()
+
+            if guardar == "s":
+                if not fecha:
+                    fecha_indicador = datetime.datetime.now()
+                else:
+                    fecha_indicador = datetime.datetime.strptime(fecha, "%d-%m-%Y")
+
+                db.registrar_consulta(
+                    nombre_indicador=indicator.upper(),
+                    valor=valor,
+                    fecha_indicador=fecha_indicador,
+                    usuario=usuario,
+                    fuente="https://mindicador.cl"
+                )
+
+                print("Consulta registrada en Oracle")
+
+        except:
+            print("Error al consultar o guardar el indicador")
+
+def menu_indicadores(finance, db, usuario):
+    while True:
+        os.system("cls")  
+
+        print(
+            """
+            =========================================
+            |     Menu: Indicadores Económicos      |
+            |---------------------------------------|
+            | 1. Consultar Unidad de Fomento (UF)   |
+            | 2. Consultar IVP                      |
+            | 3. Consultar IPC                      |
+            | 4. Consultar UTM                      |
+            | 5. Consultar Dólar Observado          |
+            | 6. Consultar Euro                     |
+            | 0. Salir                              |
+            =========================================
+            """
+        )
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            finance.consultar_y_guardar("uf", db, usuario)
+            input("\nPresione ENTER para continuar...")
+        elif opcion == "2":
+            finance.consultar_y_guardar("ivp", db, usuario)
+            input("\nPresione ENTER para continuar...")
+        elif opcion == "3":
+            finance.consultar_y_guardar("ipc", db, usuario)
+            input("\nPresione ENTER para continuar...")
+        elif opcion == "4":
+            finance.consultar_y_guardar("utm", db, usuario)
+            input("\nPresione ENTER para continuar...")
+        elif opcion == "5":
+            finance.consultar_y_guardar("dolar", db, usuario)
+            input("\nPresione ENTER para continuar...")
+        elif opcion == "6":
+            finance.consultar_y_guardar("euro", db, usuario)
+            input("\nPresione ENTER para continuar...")
+        elif opcion == "0":
+            print("Saliendo del menú de indicadores...")
+            break
+        else:
+            print("Opción inválida")
+            input("\nPresione ENTER para continuar...")
 
 
 
@@ -119,3 +251,15 @@ if __name__ == "__main__":
         password=os.getenv("ORACLE_PASSWORD"),
         dsn=os.getenv("ORACLE_DSN")
     )
+
+    Auth.register(db, 1, "C##VICENTE_SEPULVEDA", "Inacap#2025")
+
+
+    # db.create_all_tables()
+    # db.create_table_consulta_indicador()
+
+    Auth.login(db, "C##VICENTE_SEPULVEDA", "Inacap#2025")
+    finance = Finance()
+    menu_indicadores(finance, db, "C##VICENTE_SEPULVEDA")
+
+
