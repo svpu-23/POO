@@ -211,7 +211,7 @@ if __name__ == "__main__":
     )
 
     db.create_tables()
-    # Auth.register(db, 1, "C##VICENTE_SEPULVEDA", "Inacap#2025")
+    #Auth.register(db, 1, "C##VICENTE_SEPULVEDA", "Inacap#2025")
 
     if Auth.login(db, "C##VICENTE_SEPULVEDA", "Inacap#2025"):
         finance = Finance()
