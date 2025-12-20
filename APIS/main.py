@@ -47,7 +47,7 @@ class Database:
         CREATE TABLE USERS (
             id NUMBER PRIMARY KEY,
             username VARCHAR2(32) UNIQUE,
-            password BLOB
+            password VARCHAR2(200)
         )
         """
 
@@ -95,34 +95,49 @@ class Database:
 
         self.query(sql, parametros)
 
+    def consultar_por_fecha(self, fecha):
+        sql = """
+        SELECT nombre_indicador, valor, fecha_indicador
+        FROM CONSULTA_INDICADOR
+        WHERE TRUNC(fecha_indicador) = :fecha
+        """
+        return self.query(sql, {"fecha": fecha})
+
+
 class Auth:
     @staticmethod
     def login(db: Database, username: str, password: str):
-        password_bytes = password.encode("UTF-8")
+        try:
+            password_bytes = password.encode("UTF-8")
 
-        resultado = db.query(
-            "SELECT password FROM USERS WHERE username = :username",
-            {"username": username}
-        )
+            resultado = db.query(
+                "SELECT password FROM USERS WHERE username = :username",
+                {"username": username}
+            )
 
-        if not resultado:
-            print("Usuario no encontrado")
+            if not resultado:
+                print("Usuario no encontrado")
+                return False
+
+            hashed_password = resultado[0][0].encode("UTF-8")
+
+            if bcrypt.checkpw(password_bytes, hashed_password):
+                print("Logeado correctamente")
+                return True
+            else:
+                print("Contraseña incorrecta")
+                return False
+
+        except Exception:
+            print("Error durante el proceso de autenticación")
             return False
 
-        hashed_password = resultado[0][0]  
-
-        if bcrypt.checkpw(password_bytes, hashed_password):
-            print("Logeado correctamente")
-            return True
-        else:
-            print("Contraseña incorrecta")
-            return False
 
     @staticmethod
     def register(db: Database, id: int, username: str, password: str):
         password_bytes = password.encode("UTF-8")
         salt = bcrypt.gensalt(12)
-        hash_password = bcrypt.hashpw(password_bytes, salt)
+        hash_password = bcrypt.hashpw(password_bytes, salt).decode("utf-8")
 
         usuario = {
             "id": id,
@@ -142,14 +157,27 @@ class Finance:
         self.base_url = base_url
 
     def get_indicator(self, indicator: str):
-        respuesta = requests.get(f"{self.base_url}/{indicator}").json()
-        serie = respuesta["serie"][0]
-        valor = serie["valor"]
-        fecha = datetime.datetime.strptime(serie["fecha"][:10], "%Y-%m-%d")
-        return valor, fecha
+        try:
+            respuesta = requests.get(f"{self.base_url}/{indicator}").json()
+            serie = respuesta["serie"][0]
+            valor = serie["valor"]
+            fecha = datetime.datetime.strptime(serie["fecha"][:10], "%Y-%m-%d")
+            return valor, fecha
+
+        except requests.exceptions.ConnectionError:
+            print("Error: No hay conexión a internet.")
+            return None, None
+
+        except requests.exceptions.RequestException:
+            print("Error al consultar la API.")
+            return None, None
 
     def consultar_y_guardar(self, indicator: str, db, usuario: str):
         valor, fecha_indicador = self.get_indicator(indicator)
+
+        if valor is None:
+            input("\nENTER para continuar...")
+            return
 
         print(f"{indicator.upper()} = {valor}")
 
