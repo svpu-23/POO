@@ -1,7 +1,7 @@
 # 1. paso: Importar flet
 import flet as ft 
 
-# 2. paso: Calse principal de al aplicacion 
+# 2. paso: Clase principal de al aplicacion 
 class App:
     def __init__(self, page: ft.Page):
         self.page = page 
@@ -16,4 +16,4 @@ class App:
         )
 # 3. Paso: Inicializar app
 if __name__ == "__main__":
-    ft.app(target=App)
+    ft.app(target=App)  
