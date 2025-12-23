@@ -21,16 +21,31 @@ class Database:
     def create_all_tables(self):
         tables = [
             (
-                "CREATE TABLE USERS("
-                "id INTEGER PRIMARY KEY,"
-                "username VARCHAR(32) UNIQUE,"
-                "password VARCHAR(128)"
+                "CREATE TABLE USERS ("
+                "id INTEGER PRIMARY KEY, "
+                "username VARCHAR2(32) UNIQUE, "
+                "password VARCHAR2(128)"
+                ")"
+            ),
+            (
+                "CREATE TABLE HISTORY ("
+                "id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, "
+                "username VARCHAR2(32), "
+                "indicator VARCHAR2(20), "
+                "query_date VARCHAR2(20), "
+                "value NUMBER, "
+                "created_at DATE, "
+                "source VARCHAR2(50)"
                 ")"
             )
         ]
 
+
         for table in tables:
-            self.query(table)
+            try:
+                self.query(table)
+            except oracledb.DatabaseError:
+                pass
 
     def query(self, sql: str, parameters: Optional[dict] = None):
         try:
@@ -97,18 +112,35 @@ class Finance:
     def __init__(self, base_url: str = "https://mindicador.cl/api"):
         self.base_url = base_url
 
-    def get_indicator(self, indicator: str, fecha: str = None) -> float:
+    def get_indicator(self, indicator: str, fecha: str = None):
         try:
-            if not fecha:
-                dd = datetime.datetime.now().day
-                mm = datetime.datetime.now().month
-                yyyy = datetime.datetime.now().year
-                fecha = f"{dd}-{mm}-{yyyy}"
-            url = f"{self.base_url}/{indicator}/{fecha}"
+            if indicator in ["ipc", "ivp"]:
+                url = f"{self.base_url}/{indicator}"
+            else:
+                if not fecha:
+                    dd = datetime.datetime.now().day
+                    mm = datetime.datetime.now().month
+                    yyyy = datetime.datetime.now().year
+                    fecha = f"{dd}-{mm}-{yyyy}"
+                url = f"{self.base_url}/{indicator}/{fecha}"
+
             respuesta = requests.get(url).json()
+
+            if "serie" not in respuesta or not respuesta["serie"]:
+                return {
+                    "success": False,
+                    "message": "No existen datos para el indicador seleccionado"
+                }
+
             return respuesta["serie"][0]["valor"]
+
         except Exception as error:
-            return {"message": f"Hubo un error con la solicitud {error}", "success": False}
+            return {
+                "success": False,
+                "message": f"Error al consultar API: {error}"
+            }
+
+
 
     def get_usd(self, fecha: str = None):
         valor = self.get_indicator("dolar", fecha)
@@ -142,4 +174,4 @@ if __name__ == "__main__":
         dsn=os.getenv("ORACLE_DSN")
     )
 
-    Auth.login(db, "soyelseba", "alskjflsakf")
+    Auth.login(db, "C##VICENTE_SEPULVEDA", "Inacap#2025")

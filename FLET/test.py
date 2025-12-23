@@ -1,6 +1,5 @@
 from ecotech import Auth, Database, Finance
 from dotenv import load_dotenv
-from datetime import datetime
 import flet as ft
 import os
 
@@ -176,7 +175,6 @@ class App:
         )
 
         self.page.update()
-
     def page_indicator_menu(self):
         self.page.controls.clear()
 
@@ -234,128 +232,39 @@ class App:
 
     def handle_indicator_consult(self, e):
         indicador = (self.dropdown_indicator.value or "").strip()
-        fecha_input = (self.input_date.value or "").strip()
+        fecha = (self.input_date.value or "").strip()
 
         if not indicador:
             self.text_status.value = "Debes seleccionar un indicador"
-            self.text_result.value = ""
             self.page.update()
             return
 
         try:
-            if indicador == "ipc":
-                if not fecha_input:
-                    self.text_status.value = "Debes ingresar mes y año (MM-YYYY)"
-                    self.text_result.value = ""
-                    self.page.update()
-                    return
-
-                try:
-                    mes, anio = fecha_input.split("-")
-                    fecha_api = f"01-{mes}-{anio}"   
-                    fecha_guardar = fecha_input     
-                except ValueError:
-                    self.text_status.value = "Formato incorrecto. Usa MM-YYYY"
-                    self.text_result.value = ""
-                    self.page.update()
-                    return
-
-            else:
-                fecha_api = fecha_input if fecha_input else None
-                fecha_guardar = fecha_input if fecha_input else "HOY"
-
-            valor = self.finance.get_indicator(indicador, fecha_api)
+            valor = self.finance.get_indicator(indicador, fecha if fecha else None)
 
             if isinstance(valor, dict) and not valor.get("success", True):
                 self.text_status.value = valor["message"]
                 self.text_result.value = ""
-                self.page.update()
-                return
+            else:
+                self.text_result.value = f"Valor del {indicador.upper()}: {valor}"
+                self.text_status.value = ""
 
-            self.text_result.value = f"Valor del {indicador.upper()}: {valor}"
-            self.text_status.value = ""
-
-            self.db.query(
-                sql=(
-                    "INSERT INTO HISTORY "
-                    "(username, indicator, query_date, value, created_at, source) "
-                    "VALUES (:username, :indicator, :query_date, :value, :created_at, :source)"
-                ),
-                parameters={
-                    "username": self.loged_user,
-                    "indicator": indicador,
-                    "query_date": fecha_guardar,
-                    "value": valor,
-                    "created_at": datetime.now(),
-                    "source": "mindicador.cl"
-                }
-            )
+                # 👉 Aquí después puedes guardar en BD (para page_history)
 
             self.page.update()
 
         except Exception as error:
-            self.text_status.value = f"Error al consultar indicador: {error}"
+            self.text_status.value = f"Error al consultar API: {error}"
             self.text_result.value = ""
             self.page.update()
-
 
 
     def page_history_menu(self):
         self.page.controls.clear()
 
-        title = ft.Text(
-                value="Historial de Consultas",
-                size=24,
-                weight=ft.FontWeight("bold")
-            )
+        #CODIGO
 
-        history_column = ft.Column(scroll=ft.ScrollMode.AUTO)
-
-        try:
-                resultados = self.db.query(
-                    sql=(
-                        "SELECT indicator, query_date, value, created_at, source "
-                        "FROM HISTORY "
-                        "WHERE username = :username "
-                        "ORDER BY created_at DESC"
-                    ),
-                    parameters={"username": self.loged_user}
-                )
-
-                if not resultados:
-                    history_column.controls.append(
-                        ft.Text("No hay consultas registradas.")
-                    )
-                else:
-                    for fila in resultados:
-                        indicador, fecha_consulta, valor, fecha_registro, fuente = fila
-
-                        history_column.controls.append(
-                            ft.Text(
-                                f"{indicador.upper()} | Fecha: {fecha_consulta} | "
-                                f"Valor: {valor} | Consultado: {fecha_registro} | Fuente: {fuente}"
-                            )
-                        )
-
-        except Exception as error:
-                history_column.controls.append(
-                    ft.Text(f"Error al cargar historial: {error}", color="red")
-                )
-
-        btn_back = ft.Button(
-                text="Volver al menú",
-                on_click=lambda e: self.page_main_menu()
-            )
-
-        self.page.add(
-                title,
-                history_column,
-                btn_back
-            )
-
-        self.page.update()
-    
-
+        self.page.update()    
 
 if __name__ == "__main__":
     ft.app(target=App)
